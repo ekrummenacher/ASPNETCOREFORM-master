@@ -5,6 +5,14 @@ import { Button, FormGroup, Form, Col, ControlLabel, FormControl, Panel, Grid, R
 import serializeForm from 'form-serialize';
 import update from 'react-addons-update';
 
+import {
+  Modal,
+  ModalHeader,
+  ModalTitle,
+  ModalClose,
+  ModalBody,
+  ModalFooter
+} from 'react-modal-bootstrap';
 
 class App extends Component {
 
@@ -15,7 +23,8 @@ class App extends Component {
       tableData: [],
       editState: false,
       editRecord: [],
-      falseRecord: []
+      falseRecord: [],
+      isOpen: false
     };
 
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
@@ -25,7 +34,21 @@ class App extends Component {
     this._editItem = this._editItem.bind(this);
     // this._editMode = this._editMode.bind(this);
     this._handleChange = this._handleChange.bind(this);
+    this.openModal = this.openModal.bind(this);
+    this.hideModal = this.hideModal.bind(this);
   }
+
+  openModal() {
+    this.setState({
+      isOpen: true
+    });
+  };
+
+  hideModal() {
+    this.setState({
+      isOpen: false
+    });
+  };
 
   componentDidMount() {
     this._loadServiceAPIData();
@@ -50,6 +73,8 @@ class App extends Component {
     let formData = serializeForm(event.target, { hash: true });
     console.log("HandleFormSubmit: " + JSON.stringify(formData));
 
+
+
     fetch('/api/values', {
       method: 'post',
       headers: {
@@ -60,9 +85,10 @@ class App extends Component {
       mode: 'cors',
       body: JSON.stringify(formData)
     }).then(function (res) {
+      console.log(res);
       self._loadServiceAPIData(); //Reload the data
       console.log("End of Fetch: " + JSON.stringify(res))
-      self.setState({ editState: false });
+      self.setState({ editState: false, isOpen: false });
     });
 
   }
@@ -100,29 +126,29 @@ class App extends Component {
       //console.log("RESPONSE: " + JSON.stringify(responseData));
       //self.setState({ edit: true, editRecord: responseData });
       //self.setState({ editState: true});
-      self.setState({ editState: true, editRecord: responseData });
+      self.setState({ editState: true, editRecord: responseData, isOpen: true });
     });
   }
 
-    // let formData = serializeForm(event.target, { hash: true });
+  // let formData = serializeForm(event.target, { hash: true });
 
-    // fetch('/api/values', {
-    //   method: 'post',
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Access-Control-Allow-Origin": "*",
-    //     "Accept": "application/json",
-    //   },
-    //   mode: 'cors',
-    //   body: JSON.stringify(formData)
-    // }).then(function (res) {
-    //   self._loadServiceAPIData(); //Reload the data
-    //   console.log("End of Fetch: " + JSON.stringify(res))
-    // });
+  // fetch('/api/values', {
+  //   method: 'post',
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "Access-Control-Allow-Origin": "*",
+  //     "Accept": "application/json",
+  //   },
+  //   mode: 'cors',
+  //   body: JSON.stringify(formData)
+  // }).then(function (res) {
+  //   self._loadServiceAPIData(); //Reload the data
+  //   console.log("End of Fetch: " + JSON.stringify(res))
+  // });
 
-    // self.setState({
-    //   edit: false
-    // });
+  // self.setState({
+  //   edit: false
+  // });
 
 
   // _editMode(event) {
@@ -140,20 +166,20 @@ class App extends Component {
 
   _handleChange(event) {
 
-    // self = this;
+    self = this;
 
     // const change = [];
 
     // change[event.target.name] = event.target.value;
-    var elementName = event.target.name;
-    var elementValue = event.target.value;
+    const elementName = event.target.name;
+    const elementValue = event.target.value;
 
     console.log(elementName + " : " + elementValue);
- 
+
     self.setState({
       falseRecord: [],
-      editRecordData: update(this.state.editRecordData, { 0: { elementName: { $set: elementValue } } }),
-      // editRecord: (self.state.editRecord, { 1: { elementName: { $set: elementValue } } })
+      // editRecord: update(self.state.editRecord, { 0: { elementName: { $set: elementValue } } })
+      editRecord: update(self.state.editRecord, { 1: { elementName: { $set: elementValue } } })
       // editRecord: change
       // tableData: self.state.editRecord
     });
@@ -171,23 +197,24 @@ class App extends Component {
     var output = (<div></div>);
     const dtSource = this.state.tableData;
     const dtRecordData = this.state.editRecord;
+    var editForm = (<div></div>);
 
     self = this;
 
     if (self.state.editState) {
       //write input fields for edit form here
       Object.keys(dtRecordData).map(function (key) {
-        output =
+        editForm =
           (
             <div>
-              <Form horizontal onSubmit={self._handleFormSubmit}>
+              
 
                 <FormGroup controlId="formHorizontalItemName">
                   <Col componentClass={ControlLabel} sm={2}>
                     ID:
       </Col>
                   <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["formControlId"]} name="id"/>
+                    <FormControl type="text" value={dtRecordData[key]["formControlId"]} name="formControlId" />
                   </Col>
                 </FormGroup>
 
@@ -197,7 +224,7 @@ class App extends Component {
                     Name
       </Col>
                   <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["name"]} name="name" onChange={self._handleChange}/>
+                    <FormControl type="text" value={dtRecordData[key]["name"]} name="name" onChange={self._handleChange} />
                   </Col>
                 </FormGroup>
 
@@ -206,7 +233,7 @@ class App extends Component {
                     Quantity
           </Col>
                   <Col sm={10}>
-                    <FormControl type="number" value={dtRecordData[key]["quantity"]} name="quantity" onChange={self._handleChange}/>
+                    <FormControl type="number" value={dtRecordData[key]["quantity"]} name="quantity" onChange={self._handleChange} />
                   </Col>
                 </FormGroup>
 
@@ -215,7 +242,7 @@ class App extends Component {
                     Description
           </Col>
                   <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["description"]} name="description" componentClass="textarea" onChange={self._handleChange}/>
+                    <FormControl type="text" value={dtRecordData[key]["description"]} name="description" componentClass="textarea" onChange={self._handleChange} />
                   </Col>
                 </FormGroup>
 
@@ -224,22 +251,47 @@ class App extends Component {
                     Price
           </Col>
                   <Col sm={10}>
-                    <FormControl type="number" value={dtRecordData[key]["price"]} name="price" onChange={self._handleChange}/>
+                    <FormControl type="number" value={dtRecordData[key]["price"]} name="price" onChange={self._handleChange} />
                   </Col>
                 </FormGroup>
-
-                <FormGroup>
-                  <Col smOffset={7} sm={8}>
-                    <Button type="submit">
-                      Edit
-        </Button>
-                  </Col>
-                </FormGroup>
-              </Form>
+             
             </div>
 
           )
       });
+
+      //Assign the EditForm inside the modal
+      output = (
+      <div className='layout-page'>
+        <main className='layout-main'>
+          <div className='container'>
+            
+
+
+            <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
+              <Form horizontal onSubmit={self._handleFormSubmit}>
+                <ModalHeader>
+                  <ModalClose onClick={this.hideModal} />
+                  <ModalTitle>Modal title</ModalTitle>
+                </ModalHeader>
+                <ModalBody>
+                  <span>
+                    {editForm}
+                  </span>        
+                </ModalBody>
+                <ModalFooter>
+                  <button className='btn btn-default' onClick={this.hideModal}>
+                    Close
+                  </button>
+                  <button className='btn btn-primary'>
+                    Save changes
+                  </button>
+                </ModalFooter>
+              </Form>
+            </Modal>
+          </div>
+        </main>
+      </div>);
 
     } else {
 
@@ -352,9 +404,43 @@ class App extends Component {
         </div>
       );
     }
-    return (<div>
+    /*return (<div>
       {output}
-    </div>);
+    </div>);*/
+
+    /*<Modal isOpen={self.state.isOpen} onRequestHide={self.hideModal}>
+      <ModalHeader>
+        <ModalClose onClick={self.hideModal} />
+        <ModalTitle>Modal title</ModalTitle>
+      </ModalHeader>
+      <ModalBody>
+        <span>
+          {output}
+        </span>
+      </ModalBody>
+      <ModalFooter>
+        <button className='btn btn-default' onClick={self.hideModal}>
+          Close
+    </button>
+        <button className='btn btn-primary'>
+          Save changes
+    </button>
+      </ModalFooter>
+    </Modal>*/
+    let subModalDialogStyles = {
+      base: {
+        bottom: -600,
+        transition: 'bottom 0.4s'
+      },
+      open: {
+        bottom: 0
+      }
+    };
+    return (
+      <div>
+        {output}
+      </div>
+    );
   }
 }
 

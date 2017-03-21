@@ -85,21 +85,33 @@ namespace ASPNETCOREFORM.Controllers
 
             using (var db = new InventoryContext())
             {
-                if(String.IsNullOrEmpty(value.FormControlId.ToString())){
-                    db.Inventories.Add(value);
-                    db.SaveChanges();
-                } else {
+                /*
+                 The code will try and run, If it fails then we get an error.
+                 Once we get an error, we'll send it back to the React. 
+                 */
+                try{
+                    if(String.IsNullOrEmpty(value.FormControlId.ToString())){
+                        db.Inventories.Add(value);
+                        db.SaveChanges();
+                    } else {
 
-                var record = db.Inventories.Where(x => x.FormControlId == value.FormControlId).FirstOrDefault();
+                        // return value.FormControlId.ToString();
+                        //return "Total Record Found: " + db.Inventories.Where(x => x.FormControlId == value.FormControlId).Count().ToString();
 
-                    record.Name = value.Name;
-                    record.Description = value.Description;
-                    record.Quantity = value.Quantity;
-                    record.Price = value.Price;
+                        var record = db.Inventories.Where(x => x.FormControlId == value.FormControlId).FirstOrDefault();
 
-                    db.Inventories.Update(record);
-                    db.SaveChanges();
-                  
+
+                        record.Name = value.Name;
+                        record.Description = value.Description;
+                        record.Quantity = value.Quantity;
+                        record.Price = value.Price;
+
+                        db.Inventories.Update(record);
+                        db.SaveChanges();
+                    
+                    }
+                }catch(Exception error){
+                    return error.ToString();
                 }
             }
 
