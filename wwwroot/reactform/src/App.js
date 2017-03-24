@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 import { Button, FormGroup, Form, Col, ControlLabel, FormControl, Panel, Grid, Row, Table } from 'react-bootstrap';
@@ -13,6 +14,7 @@ import {
   ModalBody,
   ModalFooter
 } from 'react-modal-bootstrap';
+
 
 class App extends Component {
 
@@ -32,20 +34,20 @@ class App extends Component {
     this._load = this._loadServiceAPIData.bind(this);
     this._deleteItem = this._deleteItem.bind(this);
     this._editItem = this._editItem.bind(this);
-    // this._editMode = this._editMode.bind(this);
-    this._handleChange = this._handleChange.bind(this);
     this.openModal = this.openModal.bind(this);
     this.hideModal = this.hideModal.bind(this);
   }
 
   openModal() {
-    this.setState({
+    var self = this;
+    self.setState({
       isOpen: true
     });
   };
 
   hideModal() {
-    this.setState({
+    var self = this;
+    self.setState({
       isOpen: false
     });
   };
@@ -69,12 +71,12 @@ class App extends Component {
   _handleFormSubmit(event) {
     event.preventDefault();
 
+
     self = this;
     let formData = serializeForm(event.target, { hash: true });
     console.log("HandleFormSubmit: " + JSON.stringify(formData));
-
-
-
+  
+   
     fetch('/api/values', {
       method: 'post',
       headers: {
@@ -87,10 +89,14 @@ class App extends Component {
     }).then(function (res) {
       console.log(res);
       self._loadServiceAPIData(); //Reload the data
-      console.log("End of Fetch: " + JSON.stringify(res))
+      console.log("End of Fetch: " + JSON.stringify(res));
       self.setState({ editState: false, isOpen: false });
     });
 
+    ReactDOM.findDOMNode(self.refs.form1).value = "";
+    ReactDOM.findDOMNode(self.refs.form2).value = "";
+    ReactDOM.findDOMNode(self.refs.form3).value = "";
+    ReactDOM.findDOMNode(self.refs.form4).value = "";
   }
 
   _deleteItem(event) {
@@ -123,76 +129,12 @@ class App extends Component {
       return response.json();
     }).then(function (responseData) {
       console.log('Got data for editItem');
-      //console.log("RESPONSE: " + JSON.stringify(responseData));
-      //self.setState({ edit: true, editRecord: responseData });
-      //self.setState({ editState: true});
       self.setState({ editState: true, editRecord: responseData, isOpen: true });
     });
   }
 
-  // let formData = serializeForm(event.target, { hash: true });
-
-  // fetch('/api/values', {
-  //   method: 'post',
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     "Access-Control-Allow-Origin": "*",
-  //     "Accept": "application/json",
-  //   },
-  //   mode: 'cors',
-  //   body: JSON.stringify(formData)
-  // }).then(function (res) {
-  //   self._loadServiceAPIData(); //Reload the data
-  //   console.log("End of Fetch: " + JSON.stringify(res))
-  // });
-
-  // self.setState({
-  //   edit: false
-  // });
-
-
-  // _editMode(event) {
-  //   event.preventDefault();
-
-  //   var value = event.target.value;
-  //   alert('Edit Record ' + value);
-
-  //   // var self = this;
-
-  //   // self.setState({
-  //   //   edit: true
-  //   // });
-  // }
-
-  _handleChange(event) {
-
-    self = this;
-
-    // const change = [];
-
-    // change[event.target.name] = event.target.value;
-    const elementName = event.target.name;
-    const elementValue = event.target.value;
-
-    console.log(elementName + " : " + elementValue);
-
-    self.setState({
-      falseRecord: [],
-      // editRecord: update(self.state.editRecord, { 0: { elementName: { $set: elementValue } } })
-      editRecord: update(self.state.editRecord, { 1: { elementName: { $set: elementValue } } })
-      // editRecord: change
-      // tableData: self.state.editRecord
-    });
-  }
 
   render() {
-
-    // const rows;
-    // var formInstance;
-    // const tableInstance;
-    // const dtSource;
-    // const output;
-    // self = this;
 
     var output = (<div></div>);
     const dtSource = this.state.tableData;
@@ -207,54 +149,54 @@ class App extends Component {
         editForm =
           (
             <div>
-              
 
-                <FormGroup controlId="formHorizontalItemName">
-                  <Col componentClass={ControlLabel} sm={2}>
-                    ID:
+
+              <FormGroup controlId="formHorizontalItemName">
+                <Col componentClass={ControlLabel} sm={2}>
+                  ID:
       </Col>
-                  <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["formControlId"]} name="formControlId" />
-                  </Col>
-                </FormGroup>
+                <Col sm={10}>
+                  <FormControl type="readonly" defaultValue={dtRecordData[key]["formControlId"]} name="formControlId" />
+                </Col>
+              </FormGroup>
 
 
-                <FormGroup controlId="formHorizontalItemName">
-                  <Col componentClass={ControlLabel} sm={2}>
-                    Name
+              <FormGroup controlId="formHorizontalItemName">
+                <Col componentClass={ControlLabel} sm={2}>
+                  Name
       </Col>
-                  <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["name"]} name="name" onChange={self._handleChange} />
-                  </Col>
-                </FormGroup>
+                <Col sm={10}>
+                  <FormControl type="text" defaultValue={dtRecordData[key]["name"]} name="name" />
+                </Col>
+              </FormGroup>
 
-                <FormGroup controlId="formHorizontalQuantity">
-                  <Col componentClass={ControlLabel} sm={2}>
-                    Quantity
+              <FormGroup controlId="formHorizontalQuantity">
+                <Col componentClass={ControlLabel} sm={2}>
+                  Quantity
           </Col>
-                  <Col sm={10}>
-                    <FormControl type="number" value={dtRecordData[key]["quantity"]} name="quantity" onChange={self._handleChange} />
-                  </Col>
-                </FormGroup>
+                <Col sm={10}>
+                  <FormControl type="number" defaultValue={dtRecordData[key]["quantity"]} name="quantity" />
+                </Col>
+              </FormGroup>
 
-                <FormGroup controlId="formHorizontalQuantity">
-                  <Col componentClass={ControlLabel} sm={2}>
-                    Description
+              <FormGroup controlId="formHorizontalQuantity">
+                <Col componentClass={ControlLabel} sm={2}>
+                  Description
           </Col>
-                  <Col sm={10}>
-                    <FormControl type="text" value={dtRecordData[key]["description"]} name="description" componentClass="textarea" onChange={self._handleChange} />
-                  </Col>
-                </FormGroup>
+                <Col sm={10}>
+                  <FormControl type="text" defaultValue={dtRecordData[key]["description"]} name="description" componentClass="textarea" />
+                </Col>
+              </FormGroup>
 
-                <FormGroup controlId="formHorizontalQuantity">
-                  <Col componentClass={ControlLabel} sm={2}>
-                    Price
+              <FormGroup controlId="formHorizontalQuantity">
+                <Col componentClass={ControlLabel} sm={2}>
+                  Price
           </Col>
-                  <Col sm={10}>
-                    <FormControl type="number" value={dtRecordData[key]["price"]} name="price" onChange={self._handleChange} />
-                  </Col>
-                </FormGroup>
-             
+                <Col sm={10}>
+                  <FormControl type="number" defaultValue={dtRecordData[key]["price"]} name="price" />
+                </Col>
+              </FormGroup>
+
             </div>
 
           )
@@ -262,36 +204,35 @@ class App extends Component {
 
       //Assign the EditForm inside the modal
       output = (
-      <div className='layout-page'>
-        <main className='layout-main'>
-          <div className='container'>
-            
+   
 
 
-            <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
-              <Form horizontal onSubmit={self._handleFormSubmit}>
-                <ModalHeader>
-                  <ModalClose onClick={this.hideModal} />
-                  <ModalTitle>Modal title</ModalTitle>
-                </ModalHeader>
-                <ModalBody>
-                  <span>
-                    {editForm}
-                  </span>        
-                </ModalBody>
-                <ModalFooter>
-                  <button className='btn btn-default' onClick={this.hideModal}>
-                    Close
-                  </button>
-                  <button className='btn btn-primary'>
-                    Save changes
-                  </button>
-                </ModalFooter>
-              </Form>
-            </Modal>
-          </div>
-        </main>
-      </div>);
+
+              <Modal isOpen={this.state.isOpen} size='modal-lg' onRequestHide={this.hideModal}>
+                
+                <Form horizontal onSubmit={self._handleFormSubmit}>
+                  <ModalHeader>
+                    <ModalClose onClick={this.hideModal} />
+                    <ModalTitle>Edit Inventory:</ModalTitle>
+                  </ModalHeader>
+                  <ModalBody>
+                    <span>
+                      {editForm}
+                    </span>
+                  </ModalBody>
+                  <ModalFooter>
+                    <button className='btn btn-default' onClick={this.hideModal}>
+                      Close
+                    </button>
+                    <button className='btn btn-primary' onClick={this.hideModal}>
+                      Save changes
+                    </button>
+
+                  </ModalFooter>
+                </Form>
+               
+              </Modal>
+           );
 
     } else {
 
@@ -309,8 +250,8 @@ class App extends Component {
             <td>{dtSource[key]["description"]}</td>
             <td>{dtSource[key]["price"]}</td>
             <td>
-              <button type="submit" value={dtSource[key]["formControlId"]} onClick={self._deleteItem}>Delete</button>
-              <button type="submit" value={dtSource[key]["formControlId"]} onClick={self._editItem}>Edit</button>
+              <Button className="btn btn-danger" type="submit" value={dtSource[key]["formControlId"]} onClick={self._deleteItem}>Delete</Button>
+              <Button className="btn btn-default" type="submit" value={dtSource[key]["formControlId"]} onClick={self._editItem}>Edit</Button>
             </td>
           </tr>);
         });
@@ -319,14 +260,14 @@ class App extends Component {
 
       const formInstance = (
 
-        <Form horizontal onSubmit={this._handleFormSubmit}>
+        <Form horizontal onSubmit={self._handleFormSubmit}>
 
           <FormGroup controlId="formHorizontalItemName">
             <Col componentClass={ControlLabel} sm={2}>
               Name
       </Col>
             <Col sm={10}>
-              <FormControl type="text" name="name" placeholder="Name" />
+              <FormControl ref="form1" type="text" name="name" placeholder="Name" />
             </Col>
           </FormGroup>
 
@@ -335,7 +276,7 @@ class App extends Component {
               Quantity
           </Col>
             <Col sm={10}>
-              <FormControl type="number" name="quantity" placeholder="Quantity" />
+              <FormControl ref="form2" type="number" name="quantity" placeholder="Quantity" />
             </Col>
           </FormGroup>
 
@@ -344,7 +285,7 @@ class App extends Component {
               Description
           </Col>
             <Col sm={10}>
-              <FormControl type="text" name="description" componentClass="textarea" placeholder="Description" />
+              <FormControl ref="form3" type="text" name="description" componentClass="textarea" placeholder="Description" />
             </Col>
           </FormGroup>
 
@@ -353,7 +294,7 @@ class App extends Component {
               Price
           </Col>
             <Col sm={10}>
-              <FormControl type="number" name="price" placeholder="Price" />
+              <FormControl ref="form4" type="number" name="price" placeholder="Price" />
             </Col>
           </FormGroup>
 
@@ -362,7 +303,8 @@ class App extends Component {
             <Col smOffset={7} sm={8}>
               <Button type="submit">
                 Add
-        </Button>
+              </Button>
+       
             </Col>
           </FormGroup>
 
@@ -404,29 +346,7 @@ class App extends Component {
         </div>
       );
     }
-    /*return (<div>
-      {output}
-    </div>);*/
-
-    /*<Modal isOpen={self.state.isOpen} onRequestHide={self.hideModal}>
-      <ModalHeader>
-        <ModalClose onClick={self.hideModal} />
-        <ModalTitle>Modal title</ModalTitle>
-      </ModalHeader>
-      <ModalBody>
-        <span>
-          {output}
-        </span>
-      </ModalBody>
-      <ModalFooter>
-        <button className='btn btn-default' onClick={self.hideModal}>
-          Close
-    </button>
-        <button className='btn btn-primary'>
-          Save changes
-    </button>
-      </ModalFooter>
-    </Modal>*/
+   
     let subModalDialogStyles = {
       base: {
         bottom: -600,
@@ -436,10 +356,13 @@ class App extends Component {
         bottom: 0
       }
     };
+
+    const { isLoaded } = true;
     return (
       <div>
-        {output}
+      {output}
       </div>
+  
     );
   }
 }

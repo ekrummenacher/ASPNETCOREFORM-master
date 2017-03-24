@@ -18,6 +18,16 @@
   font-size: large;
 }
 
+.defloading {
+  margin-left: 50px;
+}
+
+
+@keyframes react-spinner_spin {
+ 0% { opacity: 1; }
+ 100% { opacity: 0.15; }
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

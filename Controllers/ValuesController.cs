@@ -47,34 +47,6 @@ namespace ASPNETCOREFORM.Controllers
 
         }
 
-        // // DELETE api/values/5
-        // [HttpGet("{id}")]
-        // //public, string - we are returning strings, get with the parameter "id"
-        // public string Get (int id)
-        // {
-        //     using (var db = new InventoryContext())
-        //     {
-        //         //create a variable - we assign it to the Inventories database, .Where(x => x.FormControlId == id) identifies the specific data you want to assign to the variable
-        //         var inventory = db.Inventories.Where(x => x.FormControlId == id);
-
-        //         //if the id of the data for variable inventory is greater than 0
-        //         if(inventory.Count() > 0) {
-        //             //create another variable that equals the data making sure it only accesses that single record of data
-        //             var inventoryRecord = inventory.SingleOrDefault();
-        //             //we query to have the inventory data removed from the database
-        //             db.Remove(inventoryRecord);
-        //             //by saving the changes, it performs the action of the query - in this case: removing the data.
-        //             db.SaveChanges();
-
-        //             //if the count is greater than 0 (aka does the record exist?) (inspect the button and see what number "values" equals, then test it in localhost:5000/api/values/[whatever value the button (or element) gives])
-        //             return "DONE";
-        //         } else {
-        //             //if the record does not exist and doesn't have an id count then it will return the string below.
-        //             return "NO RECORD FOUND";
-        //         }
-        //     }
- 
-        // }
 
         // POST api/values
         [HttpPost]
@@ -85,18 +57,20 @@ namespace ASPNETCOREFORM.Controllers
 
             using (var db = new InventoryContext())
             {
+
                 /*
                  The code will try and run, If it fails then we get an error.
                  Once we get an error, we'll send it back to the React. 
                  */
-                try{
-                    if(String.IsNullOrEmpty(value.FormControlId.ToString())){
+                try
+                {
+                    if (value.FormControlId < 1)
+                    {
                         db.Inventories.Add(value);
                         db.SaveChanges();
-                    } else {
-
-                        // return value.FormControlId.ToString();
-                        //return "Total Record Found: " + db.Inventories.Where(x => x.FormControlId == value.FormControlId).Count().ToString();
+                    }
+                    else
+                    {
 
                         var record = db.Inventories.Where(x => x.FormControlId == value.FormControlId).FirstOrDefault();
 
@@ -108,14 +82,15 @@ namespace ASPNETCOREFORM.Controllers
 
                         db.Inventories.Update(record);
                         db.SaveChanges();
-                    
+
                     }
-                }catch(Exception error){
+                }
+                catch (Exception error)
+                {
                     return error.ToString();
                 }
+
             }
-
-
             /*
                Make sure to create a new instance of 
                inventoryContext. You may refer to your notes or gitbook.
@@ -131,7 +106,7 @@ namespace ASPNETCOREFORM.Controllers
         [HttpDelete("{id}")]
         public string Delete(int id)
         {
-             using (var db = new InventoryContext())
+            using (var db = new InventoryContext())
             {
                 var inventoryItem = db.Inventories.Where(x => x.FormControlId == id);
 
